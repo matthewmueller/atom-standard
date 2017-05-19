@@ -1,0 +1,19 @@
+# atom-standard
+
+	A linter and formatter for standard. Supports all the options that standard supports.
+
+	The goal of this package is to stay current with the latest standard and support all of standard's package.json configuration.
+
+	The scope of this package will be limited to Javascript files and the standard format. Configuration for this package is done inside your package.json. Here's an example of how to configure [Flow](https://github.com/feross/standard#can-i-use-a-javascript-language-variant-like-flow).
+
+## Installation
+
+```bash
+apm install atom-standard
+```
+
+## Why?
+
+	I found myself in a pit of despair when trying facebook's flow. While standard properly supports flow via babel-eslint and eslint-plugin-flowtype, I found that the tooling around it was not up-to-date, specifically [linter-js-standard](https://github.com/ricardofbarros/linter-js-standard) & [atom-standard-formatter](https://github.com/stephenkubovic/atom-standard-formatter).
+
+	More importantly, I want a single package that supports linting and formatting and stays current with Standard.

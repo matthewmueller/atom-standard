@@ -1,0 +1,24 @@
+{
+  "name": "atom-standard",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "atom-package-deps": "^4.6.0",
+    "atom-set-text": "^1.1.2",
+    "babel-eslint": "*",
+    "eslint-plugin-flowtype": "*",
+    "loophole": "^1.1.0",
+    "standard": "*"
+  },
+  "package-deps": [
+    "linter"
+  ],
+  "providedServices": {
+    "linter": {
+      "versions": {
+        "2.0.0": "provideLinter"
+      }
+    }
+  }
+}
