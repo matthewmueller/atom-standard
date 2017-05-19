@@ -1,7 +1,10 @@
 {
   "name": "atom-standard",
-  "version": "1.0.0",
+  "author": "Matthew Mueller <mattmuelle@gmail.com>",
+  "version": "0.0.0",
   "main": "index.js",
+  "repository": "https://github.com/matthewmueller/atom-standard",
+  "engines": {"atom": ">=1.0.0 <2.0.0"},
   "license": "MIT",
   "dependencies": {
     "atom-package-deps": "^4.6.0",

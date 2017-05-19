@@ -1,10 +1,12 @@
 # atom-standard
 
-	A linter and formatter for standard. Supports all the options that standard supports.
+	A linter and formatter for atom using [standard](https://github.com/feross/standard). Supports all the options that standard supports.
 
 	The goal of this package is to stay current with the latest standard and support all of standard's package.json configuration.
 
-	The scope of this package will be limited to Javascript files and the standard format. Configuration for this package is done inside your package.json. Here's an example of how to configure [Flow](https://github.com/feross/standard#can-i-use-a-javascript-language-variant-like-flow).
+	The scope of this package will be limited to javascript files (not markdown, html, etc.) and the standard format (not happiness, semi-standard, etc.)
+
+	Configuration for this package is done inside your package.json. Here's an example of how to configure [Flow](https://github.com/feross/standard#can-i-use-a-javascript-language-variant-like-flow).
 
 ## Installation
 
