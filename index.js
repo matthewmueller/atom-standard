@@ -41,7 +41,6 @@ module.exports = {
               if (fixed) window.requestAnimationFrame(function () { setText(fixed, textEditor) })
 
               if (!res.errorCount) return resolve([])
-              console.log(formatErrors(filePath, res))
               resolve(formatErrors(filePath, res))
             })
           })
