@@ -41,10 +41,15 @@ module.exports = {
 
         // pass through prettier first
         if (conf.prettier) {
-          fileContent = prettier.format(fileContent, {
-            semi: false,
-            singleQuote: true
-          })
+          try {
+            fileContent = prettier.format(fileContent, {
+              semi: false,
+              singleQuote: true
+            })
+          } catch (e) {
+            // this will happen when there's a parsing error
+            // let standard handle it down the stack
+          }
         }
 
         return new Promise(function (resolve, reject) {
