@@ -1,6 +1,13 @@
-const scope = ['source.js', 'source.js.jsx', 'source.js.jquery', 'source.gfm', 'source.vue']
+const scope = [
+  'source.js',
+  'source.js.jsx',
+  'source.js.jquery',
+  'source.gfm',
+  'source.vue'
+]
 
 const defaults = {
+  prettier: true,
   fix: true
 }
 
@@ -8,17 +15,20 @@ module.exports = {
   scope: scope,
   activate: function (state) {
     require('atom-package-deps')
-    .install('atom-standard', true)
-    .catch(function (err) {
-      window.atom.notifications.addError('Error activating atom-standard', {
-        detail: err.message,
-        dismissable: true
+      .install('atom-standard', true)
+      .catch(function (err) {
+        window.atom.notifications.addError('Error activating atom-standard', {
+          detail: err.message,
+          dismissable: true
+        })
       })
-    })
   },
   provideLinter: function () {
-    const standard = unsafe(function () { return require('standard') })
+    const standard = unsafe(function () {
+      return require('standard')
+    })
     const setText = require('atom-set-text')
+    const prettier = require('prettier')
 
     return {
       name: 'standard',
@@ -26,10 +36,22 @@ module.exports = {
       grammarScopes: scope,
       lintsOnChange: false,
       lint: function (textEditor) {
-        const fileContent = textEditor.getText()
+        let fileContent = textEditor.getText()
         const filePath = textEditor.getPath()
-        const pkgconf = require('pkg-config')(null, { cwd: filePath, root: 'standard', cache: false })
+        const pkgconf = require('pkg-config')(null, {
+          cwd: filePath,
+          root: 'standard',
+          cache: false
+        })
         const conf = Object.assign({}, defaults, pkgconf)
+
+        // pass through prettier first
+        if (conf.prettier) {
+          fileContent = prettier.format(fileContent, {
+            semi: false,
+            singleQuote: true
+          })
+        }
 
         return new Promise(function (resolve, reject) {
           unsafe(function () {
@@ -37,8 +59,12 @@ module.exports = {
               if (err) return reject(err)
 
               // format the text
-              var fixed = res && Array.isArray(res.results) && res.results[0] && res.results[0].output
-              if (fixed) window.requestAnimationFrame(function () { setText(fixed, textEditor) })
+              var fixed =
+                res &&
+                Array.isArray(res.results) &&
+                res.results[0] &&
+                res.results[0].output
+              if (fixed) setText(fixed, textEditor)
 
               if (!res.errorCount) return resolve([])
               resolve(formatErrors(filePath, res))
@@ -55,7 +81,7 @@ function unsafe (fn) {
 }
 
 function getRange (line, col, src, lineStart) {
-  line = typeof line !== 'undefined' ? parseInt((line - 1) + lineStart, 10) : 0
+  line = typeof line !== 'undefined' ? parseInt(line - 1 + lineStart, 10) : 0
   col = typeof col !== 'undefined' ? parseInt(col - 1, 10) : 0
   src = src || ''
   src = src.substring(0, col)

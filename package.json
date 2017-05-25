@@ -14,6 +14,7 @@
     "babel-eslint": "*",
     "eslint-plugin-flowtype": "*",
     "loophole": "^1.1.0",
+    "prettier": "^1.3.1",
     "standard": "*"
   },
   "package-deps": [
