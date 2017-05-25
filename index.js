@@ -1,10 +1,4 @@
-const scope = [
-  'source.js',
-  'source.js.jsx',
-  'source.js.jquery',
-  'source.gfm',
-  'source.vue'
-]
+const scope = ['source.js', 'source.js.jsx', 'source.js.jquery', 'source.vue']
 
 const defaults = {
   prettier: true,
