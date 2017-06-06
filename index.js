@@ -8,6 +8,7 @@ const defaults = {
 module.exports = {
   scope: scope,
   activate: function (state) {
+    // console.time('requiring')
     require('atom-package-deps')
       .install('atom-standard', true)
       .catch(function (err) {
@@ -16,62 +17,82 @@ module.exports = {
           dismissable: true
         })
       })
+    // .then(function () {
+    //   console.timeEnd('requiring')
+    // })
   },
   provideLinter: function () {
-    const standard = unsafe(function () {
-      return require('standard')
-    })
-    const setText = require('atom-set-text')
-    const prettier = require('prettier')
-
+    const lint = Lint()
     return {
       name: 'standard',
       scope: 'file',
       grammarScopes: scope,
       lintsOnChange: false,
-      lint: function (textEditor) {
-        let fileContent = textEditor.getText()
-        const filePath = textEditor.getPath()
-        const pkgconf = require('pkg-config')(null, {
-          cwd: filePath,
-          root: 'standard',
-          cache: false
-        })
-        const conf = Object.assign({}, defaults, pkgconf)
+      lint: lint
+    }
+  }
+}
 
-        // pass through prettier first
-        if (conf.prettier) {
-          try {
-            fileContent = prettier.format(fileContent, {
-              semi: false,
-              singleQuote: true
-            })
-          } catch (e) {
-            // this will happen when there's a parsing error
-            // let standard handle it down the stack
-          }
+function Lint () {
+  // console.time('activating')
+  const standard = unsafe(function () {
+    return require('standard')
+  })
+  const setText = require('atom-set-text')
+  const prettier = require('prettier')
+  // console.timeEnd('activating')
+
+  return function lint (textEditor) {
+    return new Promise(function (resolve, reject) {
+      window.requestIdleCallback(resolve)
+    }).then(function () {
+      let fileContent = textEditor.getText()
+      const filePath = textEditor.getPath()
+      // console.time('conf')
+      const pkgconf = require('pkg-config')(null, {
+        cwd: filePath,
+        root: 'standard',
+        cache: false
+      })
+      // console.timeEnd('conf')
+      const conf = Object.assign({}, defaults, pkgconf)
+
+      // pass through prettier first
+      if (conf.prettier) {
+        try {
+          // console.time('prettier')
+          fileContent = prettier.format(fileContent, {
+            semi: false,
+            singleQuote: true
+          })
+          // console.timeEnd('prettier')
+        } catch (e) {
+          // this will happen when there's a parsing error
+          // let standard handle it down the stack
         }
+      }
 
-        return new Promise(function (resolve, reject) {
-          unsafe(function () {
-            standard.lintText(fileContent, conf, function (err, res) {
-              if (err) return reject(err)
+      return new Promise(function (resolve, reject) {
+        unsafe(function () {
+          // console.time('standard')
+          standard.lintText(fileContent, conf, function (err, res) {
+            if (err) return reject(err)
+            // console.timeEnd('standard')
 
-              // format the text
-              var fixed =
-                res &&
-                Array.isArray(res.results) &&
-                res.results[0] &&
-                res.results[0].output
-              if (fixed) setText(fixed, textEditor)
+            // format the text
+            var fixed =
+              res &&
+              Array.isArray(res.results) &&
+              res.results[0] &&
+              res.results[0].output
+            if (fixed) setText(fixed, textEditor)
 
-              if (!res.errorCount) return resolve([])
-              resolve(formatErrors(filePath, res))
-            })
+            if (!res.errorCount) return resolve([])
+            resolve(formatErrors(filePath, res))
           })
         })
-      }
-    }
+      })
+    })
   }
 }
 
