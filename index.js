@@ -8,15 +8,17 @@ const defaults = {
 module.exports = {
   scope: scope,
   activate: function (state) {
-    // console.time('requiring')
-    require('atom-package-deps')
-      .install('atom-standard', true)
-      .catch(function (err) {
-        window.atom.notifications.addError('Error activating atom-standard', {
-          detail: err.message,
-          dismissable: true
+    window.requestIdleCallback(function () {
+      require('atom-package-deps')
+        .install('atom-standard', true)
+        .catch(function (err) {
+          window.atom.notifications.addError('Error activating atom-standard', {
+            detail: err.message,
+            dismissable: true
+          })
         })
-      })
+    })
+    // console.time('requiring')
     // .then(function () {
     //   console.timeEnd('requiring')
     // })
@@ -34,18 +36,17 @@ module.exports = {
 }
 
 function Lint () {
-  // console.time('activating')
-  const standard = unsafe(function () {
-    return require('standard')
-  })
-  const setText = require('atom-set-text')
-  const prettier = require('prettier')
-  // console.timeEnd('activating')
+  let standard = null
+  let setText = null
+  let prettier = null
 
   return function lint (textEditor) {
     return new Promise(function (resolve, reject) {
       window.requestIdleCallback(resolve)
     }).then(function () {
+      standard = standard || unsafe(() => require('standard'))
+      pretter = prettier || require('prettier')
+      setText = setText || require('atom-set-text')
       let fileContent = textEditor.getText()
       const filePath = textEditor.getPath()
       // console.time('conf')
