@@ -45,7 +45,7 @@ function Lint () {
       window.requestIdleCallback(resolve)
     }).then(function () {
       standard = standard || unsafe(() => require('standard'))
-      pretter = prettier || require('prettier')
+      prettier = prettier || require('prettier')
       setText = setText || require('atom-set-text')
       let fileContent = textEditor.getText()
       const filePath = textEditor.getPath()
