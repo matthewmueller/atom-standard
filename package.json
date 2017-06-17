@@ -13,7 +13,9 @@
     "atom-set-text": "^1.1.2",
     "babel-eslint": "*",
     "eslint-plugin-flowtype": "*",
+    "find-root": "^1.0.0",
     "loophole": "^1.1.0",
+    "minimatch": "^3.0.4",
     "prettier": "^1.3.1",
     "standard": "*"
   },

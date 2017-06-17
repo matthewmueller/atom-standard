@@ -36,38 +36,55 @@ module.exports = {
 }
 
 function Lint () {
-  let standard = null
-  let setText = null
+  let minimatch = null
   let prettier = null
+  let standard = null
+  let findRoot = null
+  let setText = null
 
   return function lint (textEditor) {
     return new Promise(function (resolve, reject) {
       window.requestIdleCallback(resolve)
     }).then(function () {
       standard = standard || unsafe(() => require('standard'))
+      minimatch = minimatch || require('minimatch')
       prettier = prettier || require('prettier')
       setText = setText || require('atom-set-text')
+      findRoot = findRoot || require('find-root')
       let fileContent = textEditor.getText()
       const filePath = textEditor.getPath()
-      // console.time('conf')
-      const pkgconf = require('pkg-config')(null, {
-        cwd: filePath,
-        root: 'standard',
-        cache: false
-      })
-      // console.timeEnd('conf')
+      let pkgconf = {}
+
+      const root = findRoot(filePath)
+      if (root) {
+        pkgconf = require('pkg-config')(null, {
+          cwd: root,
+          root: 'standard',
+          cache: false
+        })
+      }
+
       const conf = Object.assign({}, defaults, pkgconf)
+
+      // ignore file
+      if (conf.ignore) {
+        ignored = conf.ignore.filter(function (ignore) {
+          if (ignore[ignore.length - 1] === '/') ignore += '**'
+          return minimatch(filePath, path.join(root, ignore))
+        })
+        // we've got a match
+        if (ignored.length) return Promise.resolve([])
+      }
 
       // pass through prettier first
       if (conf.prettier) {
         try {
-          // console.time('prettier')
           fileContent = prettier.format(fileContent, {
             semi: false,
             singleQuote: true
           })
-          // console.timeEnd('prettier')
         } catch (e) {
+          console.log(e);
           // this will happen when there's a parsing error
           // let standard handle it down the stack
         }
@@ -75,18 +92,15 @@ function Lint () {
 
       return new Promise(function (resolve, reject) {
         unsafe(function () {
-          // console.time('standard')
           standard.lintText(fileContent, conf, function (err, res) {
             if (err) return reject(err)
-            // console.timeEnd('standard')
-
             // format the text
             var fixed =
               res &&
               Array.isArray(res.results) &&
               res.results[0] &&
               res.results[0].output
-            if (fixed) setText(fixed, textEditor)
+            setText(fixed || fileContent, textEditor)
 
             if (!res.errorCount) return resolve([])
             resolve(formatErrors(filePath, res))
